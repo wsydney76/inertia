@@ -3,23 +3,17 @@
 namespace wsydney76\inertia;
 
 use Craft;
+use craft\base\Model;
 use craft\base\Plugin;
 use craft\events\RegisterTemplateRootsEvent;
 use craft\web\Application;
 use craft\web\View;
+use wsydney76\inertia\models\Settings;
 use yii\base\Event;
 use yii\web\Response;
 
 class Inertia extends Plugin
 {
-    /** @var array */
-    public $assetsDirs = [];
-
-    /** @var string */
-    public $shareKey = '__inertia__';
-
-    /** @var string */
-    public $view = '';
 
     /**
      * @inheritDoc
@@ -29,8 +23,13 @@ class Inertia extends Plugin
 
         parent::init();
 
-        $this->assetsDirs = Craft::$app->config->custom->assetDirs ?? ['@webroot/assets'];
-        $this->view = Craft::$app->config->custom->frontendView ?? 'inertia/inertia.twig';
+        Event::on(
+            View::class,
+            View::EVENT_REGISTER_SITE_TEMPLATE_ROOTS,
+            function(RegisterTemplateRootsEvent $event) {
+                $event->roots['inertia'] = __DIR__ . '/templates';
+            }
+        );
 
         // Unset header since at least yii\web\ErrorAction is testing it
         // Craft::$app->request->headers->set('X-Requested-With', null);
@@ -101,12 +100,11 @@ class Inertia extends Plugin
     public function getVersion()
     {
         $hashes = [];
-        foreach ($this->assetsDirs as $assetDir) {
+        foreach ($this->settings->assetsDirs as $assetDir) {
             $hashes[] = $this->hashDirectory(Craft::getAlias($assetDir));
         }
         return md5(implode('', $hashes));
     }
-
 
     /**
      * @param array|string $key
@@ -115,9 +113,9 @@ class Inertia extends Plugin
     public function share($key, $value = null)
     {
         if (is_array($key)) {
-            Craft::$app->params[$this->shareKey] = array_merge($this->getShared(), $key);
+            Craft::$app->params[$this->settings->shareKey] = array_merge($this->getShared(), $key);
         } elseif (is_string($key) && is_array($value)) {
-            Craft::$app->params[$this->shareKey] = array_merge($this->getShared(), [$key => $value]);
+            Craft::$app->params[$this->settings->shareKey] = array_merge($this->getShared(), [$key => $value]);
         }
     }
 
@@ -127,11 +125,12 @@ class Inertia extends Plugin
      */
     public function getShared($key = null)
     {
-        if (is_string($key) && isset(Craft::$app->params[$this->shareKey][$key])) {
-            return Craft::$app->params[$this->shareKey][$key];
+        $shareKey = $this->settings->shareKey;
+        if (is_string($key) && isset(Craft::$app->params[$shareKey][$key])) {
+            return Craft::$app->params[$shareKey][$key];
         }
-        if (isset(Craft::$app->params[$this->shareKey])) {
-            return Craft::$app->params[$this->shareKey];
+        if (isset(Craft::$app->params[$shareKey])) {
+            return Craft::$app->params[$shareKey];
         }
         return [];
     }
@@ -147,7 +146,7 @@ class Inertia extends Plugin
     {
         $files = [];
         $dir = dir($directory);
-            while (($file = $dir->read()) !== false) {
+        while (($file = $dir->read()) !== false) {
             if ($file != '.' and $file != '..') {
                 if (is_dir($directory . '/' . $file)) {
                     $files[] = $this->hashDirectory($directory . '/' . $file);
@@ -158,6 +157,11 @@ class Inertia extends Plugin
         }
         $dir->close();
         return md5(implode('', $files));
+    }
+
+    protected function createSettingsModel(): Model
+    {
+        return new Settings();
     }
 
 }

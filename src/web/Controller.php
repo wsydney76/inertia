@@ -44,7 +44,7 @@ class Controller extends \craft\web\Controller
             return $params;
         }
 
-        return Craft::$app->view->renderTemplate(Inertia::getInstance()->view, [
+        return Craft::$app->view->renderTemplate(Inertia::getInstance()->settings->view, [
             'page' => $params
         ]);
     }
