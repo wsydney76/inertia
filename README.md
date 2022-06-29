@@ -22,7 +22,7 @@ Example setup using Vue 3, Tailwind CSS and Laravel Mix included in `examples/bu
 Install via Composer:
 
 ```sh
-composer require wsydney76/inertia
+composer require wsydney76/inertia:1.1-beta.2
 php craft plugin/install inertia
 ```
 
