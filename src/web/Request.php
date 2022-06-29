@@ -7,7 +7,10 @@ use yii\web\JsonParser;
 
 class Request extends \craft\web\Request
 {
-    const CSRF_HEADER = 'X-XSRF-TOKEN';
+
+    // Set token name as expected by Inertia JS (using axios behind the scenes)
+
+    public const CSRF_HEADER = 'X-XSRF-TOKEN';
 
     public $csrfParam = 'XSRF-TOKEN';
 
@@ -21,7 +24,9 @@ class Request extends \craft\web\Request
     }
 
     /**
-     * @return string the CSRF token sent via [[CSRF_HEADER]] by browser. Null is returned if no such header is sent.
+     * @return string|null the CSRF token sent via [[CSRF_HEADER]] by browser. Null is returned if no such header is sent.
+     * @throws \yii\base\Exception
+     * @throws \yii\base\InvalidConfigException
      */
     public function getCsrfTokenFromHeader(): ?string
     {

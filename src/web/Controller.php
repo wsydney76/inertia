@@ -3,6 +3,7 @@
 namespace wsydney76\inertia\web;
 
 use Craft;
+use craft\helpers\App;
 use wsydney76\inertia\Inertia;
 
 /**
@@ -17,6 +18,10 @@ class Controller extends \craft\web\Controller
 
     private ?string $only = '';
 
+
+    /*
+     * Capture request for partial reload
+     */
     public function beforeAction($action): bool
     {
         if (Craft::$app->request->headers->has('X-Inertia-Partial-Data')) {
@@ -27,29 +32,35 @@ class Controller extends \craft\web\Controller
     }
 
     /**
-     * @param string $component
+     * @param string $view
      * @param array $params
      * @return array|string
      */
-    public function inertia(string $component, array $params = []): array|string
+    public function render($view, $params = []): array|string
     {
+        // Set params as expected in Inertia protocol
+        // https://inertiajs.com/the-protocol
         $params = [
-            'component' => $component,
+            'component' => $view,
             'props' => $this->getInertiaProps($params),
             'url' => $this->getInertiaUrl(),
             'version' => $this->getInertiaVersion()
         ];
 
+        // XHR-Request: just return params
         if (Craft::$app->request->headers->has('X-Inertia')) {
             return $params;
         }
 
+        // First request: Return full template
         return Craft::$app->view->renderTemplate(Inertia::getInstance()->settings->view, [
             'page' => $params
         ]);
     }
 
     /**
+     * Merge shared props and individual request props
+     *
      * @param array $params
      * @return array
      */
@@ -62,6 +73,8 @@ class Controller extends \craft\web\Controller
     }
 
     /**
+     * Request URL
+     *
      * @return string
      */
     private function getInertiaUrl(): string
@@ -70,6 +83,8 @@ class Controller extends \craft\web\Controller
     }
 
     /**
+     * Asset version finger print
+     *
      * @return string
      */
     private function getInertiaVersion(): string
@@ -77,11 +92,19 @@ class Controller extends \craft\web\Controller
         return Inertia::getInstance()->getVersion();
     }
 
-    public function checkOnly($key) {
+    /*
+     * Check if prop was requested in partial reload
+     */
+    public function checkOnly($key): bool
+    {
         return in_array($key, explode(',', $this->only), true);
     }
 
-    public function getOnly(){
+    /*
+     * Get all props requested in partial reload (comma separated string)
+     */
+    public function getOnly(): ?string
+    {
         return $this->only;
     }
 }

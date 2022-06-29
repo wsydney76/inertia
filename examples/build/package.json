@@ -1,0 +1,36 @@
+{
+  "name": "Craft-Inertia",
+  "version": "2.0.0",
+  "description": "Proof of concept Vue/Inertia app powered by Craft CMS",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "dev": "npx mix",
+    "development": "npx mix",
+    "watch": "npx mix watch",
+    "hot": "npx mix watch --hot",
+    "prod": "npx mix --production",
+    "production": "npx mix --production"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@inertiajs/inertia": "^0.4.0",
+    "@inertiajs/inertia-vue3": "^0.1.0",
+    "@tailwindcss/typography": "^0.5.2",
+    "@vue/compiler-sfc": "^3.0.0",
+    "autoprefixer": "^10.4.7",
+    "axios": "^0.20.0",
+    "baguettebox.js": "^1.11.1",
+    "clean-webpack-plugin": "^4.0.0",
+    "laravel-mix": "^6.0.0-beta.7",
+    "laravel-mix-clean": "^0.1.0",
+    "postcss": "^8.1.1",
+    "tailwindcss": "^3.1.2",
+    "vue": "^3.0.0",
+    "vue-loader": "^16.0.0-beta.8"
+  },
+  "dependencies": {}
+}
