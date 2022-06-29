@@ -2,7 +2,7 @@
   "name": "wsydney76/inertia",
   "description": "Craft Inertia Adapter PoC",
   "type": "craft-plugin",
-  "version": "1.0.0",
+  "version": "1.1-beta.2",
   "keywords": [
     "craft",
     "cms",
